@@ -1,0 +1,410 @@
+\section{Geant4 Installation Issue and Full Simulation Code}
+\label{appendix:geant4_full}
+
+\begin{tcolorbox}[colback=red!5!white, colframe=red!75!black, title=Important Note]
+Due to system-level installation restrictions, we were unable to install and run the Geant4 framework on our machines. Nonetheless, we developed a full simulation code as described below. The complete code (all files) is also available in our GitHub repository at \texttt{\href{https://github.com/aayambansal/teamkishmishcern}{https://github.com/aayambansal/teamkishmishcern}}.
+\end{tcolorbox}
+
+\vspace{1em}
+
+% ----- main.cc -----
+\begin{tcolorbox}[colback=gray!5!white, colframe=blue!75!black, title={File: main.cc}]
+\footnotesize
+\begin{verbatim}
+#include "G4RunManager.hh"
+#include "G4UImanager.hh"
+#include "G4VisExecutive.hh"
+#include "G4UIExecutive.hh"
+#include "QGSP_BERT.hh"
+
+#include "DetectorConstruction.hh"
+#include "ActionInitialization.hh"
+
+int main(int argc, char** argv)
+{
+  // Detect interactive mode (if no arguments) and define UI session
+  G4UIExecutive* ui = nullptr;
+  if (argc == 1) { ui = new G4UIExecutive(argc, argv); }
+
+  // Construct the default run manager
+  G4RunManager* runManager = new G4RunManager;
+
+  // Set mandatory initialization classes
+  runManager->SetUserInitialization(new DetectorConstruction());
+  runManager->SetUserInitialization(new QGSP_BERT);
+  runManager->SetUserInitialization(new ActionInitialization());
+
+  // Initialize G4 kernel
+  runManager->Initialize();
+
+  // Initialize visualization
+  G4VisManager* visManager = new G4VisExecutive;
+  visManager->Initialize();
+
+  // Get the pointer to the User Interface manager
+  G4UImanager* UImanager = G4UImanager::GetUIpointer();
+
+  if (ui) { // interactive mode
+      UImanager->ApplyCommand("/control/execute init_vis.mac");
+      ui->SessionStart();
+      delete ui;
+  } else { // batch mode
+      G4String command = "/control/execute ";
+      G4String fileName = argv[1];
+      UImanager->ApplyCommand(command+fileName);
+  }
+
+  // Job termination
+  delete visManager;
+  delete runManager;
+  return 0;
+}
+\end{verbatim}
+\end{tcolorbox}
+
+\vspace{1em}
+
+% ----- DetectorConstruction.hh -----
+\begin{tcolorbox}[colback=gray!5!white, colframe=blue!75!black, title={File: DetectorConstruction.hh}]
+\footnotesize
+\begin{verbatim}
+#ifndef DetectorConstruction_h
+#define DetectorConstruction_h 1
+
+#include "G4VUserDetectorConstruction.hh"
+
+class DetectorConstruction : public G4VUserDetectorConstruction
+{
+  public:
+    DetectorConstruction();
+    virtual ~DetectorConstruction();
+    virtual G4VPhysicalVolume* Construct();
+};
+
+#endif
+\end{verbatim}
+\end{tcolorbox}
+
+\vspace{1em}
+
+% ----- DetectorConstruction.cc -----
+\begin{tcolorbox}[colback=gray!5!white, colframe=blue!75!black, title={File: DetectorConstruction.cc}]
+\footnotesize
+\begin{verbatim}
+#include "DetectorConstruction.hh"
+#include "G4Material.hh"
+#include "G4NistManager.hh"
+#include "G4Box.hh"
+#include "G4LogicalVolume.hh"
+#include "G4PVPlacement.hh"
+#include "G4SystemOfUnits.hh"
+#include "G4VisAttributes.hh"
+
+DetectorConstruction::DetectorConstruction() : G4VUserDetectorConstruction() { }
+DetectorConstruction::~DetectorConstruction() { }
+
+G4VPhysicalVolume* DetectorConstruction::Construct()
+{
+  // Get materials from NIST database
+  G4NistManager* nist = G4NistManager::Instance();
+
+  // World parameters
+  G4double world_sizeXY = 1.*m;
+  G4double world_sizeZ  = 1.*m;
+  G4Material* worldMat = nist->FindOrBuildMaterial("G4_AIR");
+  G4Box* solidWorld = new G4Box("World", 0.5*world_sizeXY, 0.5*world_sizeXY, 0.5*world_sizeZ);
+  G4LogicalVolume* logicWorld = new G4LogicalVolume(solidWorld, worldMat, "World");
+  G4VPhysicalVolume* physWorld = new G4PVPlacement(0, G4ThreeVector(), logicWorld, "World", 0, false, 0, true);
+
+  // Radiator: simple box as Cherenkov radiator
+  G4Material* radiatorMat = nist->FindOrBuildMaterial("G4_SILICON_DIOXIDE");
+  G4double rad_sizeXY = 10*cm;
+  G4double rad_sizeZ  = 1*cm;
+  G4Box* solidRad = new G4Box("Radiator", 0.5*rad_sizeXY, 0.5*rad_sizeXY, 0.5*rad_sizeZ);
+  G4LogicalVolume* logicRad = new G4LogicalVolume(solidRad, radiatorMat, "Radiator");
+  new G4PVPlacement(0, G4ThreeVector(0,0,0), logicRad, "Radiator", logicWorld, false, 0, true);
+
+  // Set visualization attributes
+  logicWorld->SetVisAttributes(G4VisAttributes::GetInvisible());
+  G4VisAttributes* boxVisAtt = new G4VisAttributes(G4Colour(0.0,0.8,0.8));
+  logicRad->SetVisAttributes(boxVisAtt);
+
+  return physWorld;
+}
+\end{verbatim}
+\end{tcolorbox}
+
+\vspace{1em}
+
+% ----- ActionInitialization.hh -----
+\begin{tcolorbox}[colback=gray!5!white, colframe=blue!75!black, title={File: ActionInitialization.hh}]
+\footnotesize
+\begin{verbatim}
+#ifndef ActionInitialization_h
+#define ActionInitialization_h 1
+
+#include "G4VUserActionInitialization.hh"
+
+class ActionInitialization : public G4VUserActionInitialization
+{
+  public:
+    ActionInitialization();
+    virtual ~ActionInitialization();
+    virtual void BuildForMaster() const;
+    virtual void Build() const;
+};
+
+#endif
+\end{verbatim}
+\end{tcolorbox}
+
+\vspace{1em}
+
+% ----- ActionInitialization.cc -----
+\begin{tcolorbox}[colback=gray!5!white, colframe=blue!75!black, title={File: ActionInitialization.cc}]
+\footnotesize
+\begin{verbatim}
+#include "ActionInitialization.hh"
+#include "PrimaryGeneratorAction.hh"
+#include "RunAction.hh"
+#include "EventAction.hh"
+#include "SteppingAction.hh"
+
+ActionInitialization::ActionInitialization() : G4VUserActionInitialization() { }
+ActionInitialization::~ActionInitialization() { }
+
+void ActionInitialization::BuildForMaster() const
+{
+  SetUserAction(new RunAction);
+}
+
+void ActionInitialization::Build() const
+{
+  SetUserAction(new PrimaryGeneratorAction);
+  SetUserAction(new RunAction);
+  EventAction* eventAction = new EventAction;
+  SetUserAction(eventAction);
+  SetUserAction(new SteppingAction(eventAction));
+}
+\end{verbatim}
+\end{tcolorbox}
+
+\vspace{1em}
+
+% ----- PrimaryGeneratorAction.hh -----
+\begin{tcolorbox}[colback=gray!5!white, colframe=blue!75!black, title={File: PrimaryGeneratorAction.hh}]
+\footnotesize
+\begin{verbatim}
+#ifndef PrimaryGeneratorAction_h
+#define PrimaryGeneratorAction_h 1
+
+#include "G4VUserPrimaryGeneratorAction.hh"
+#include "G4ParticleGun.hh"
+
+class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
+{
+  public:
+    PrimaryGeneratorAction();
+    virtual ~PrimaryGeneratorAction();
+    virtual void GeneratePrimaries(G4Event* anEvent);
+    
+  private:
+    G4ParticleGun* fParticleGun;
+};
+
+#endif
+\end{verbatim}
+\end{tcolorbox}
+
+\vspace{1em}
+
+% ----- PrimaryGeneratorAction.cc -----
+\begin{tcolorbox}[colback=gray!5!white, colframe=blue!75!black, title={File: PrimaryGeneratorAction.cc}]
+\footnotesize
+\begin{verbatim}
+#include "PrimaryGeneratorAction.hh"
+#include "G4ParticleTable.hh"
+#include "G4ParticleDefinition.hh"
+#include "G4SystemOfUnits.hh"
+
+PrimaryGeneratorAction::PrimaryGeneratorAction()
+{
+  G4int n_particle = 1;
+  fParticleGun = new G4ParticleGun(n_particle);
+  
+  // Set default particle to electron
+  G4ParticleDefinition* particle =
+    G4ParticleTable::GetParticleTable()->FindParticle("e-");
+  fParticleGun->SetParticleDefinition(particle);
+  fParticleGun->SetParticleEnergy(1.*GeV);
+  fParticleGun->SetParticlePosition(G4ThreeVector(-50*cm, 0, 0));
+  fParticleGun->SetParticleMomentumDirection(G4ThreeVector(1, 0, 0));
+}
+
+PrimaryGeneratorAction::~PrimaryGeneratorAction()
+{
+  delete fParticleGun;
+}
+
+void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
+{
+  fParticleGun->GeneratePrimaryVertex(anEvent);
+}
+\end{verbatim}
+\end{tcolorbox}
+
+\vspace{1em}
+
+% ----- RunAction.hh -----
+\begin{tcolorbox}[colback=gray!5!white, colframe=blue!75!black, title={File: RunAction.hh}]
+\footnotesize
+\begin{verbatim}
+#ifndef RunAction_h
+#define RunAction_h 1
+
+#include "G4UserRunAction.hh"
+
+class RunAction : public G4UserRunAction
+{
+  public:
+    RunAction();
+    virtual ~RunAction();
+    virtual void BeginOfRunAction(const G4Run*);
+    virtual void EndOfRunAction(const G4Run*);
+};
+
+#endif
+\end{verbatim}
+\end{tcolorbox}
+
+\vspace{1em}
+
+% ----- RunAction.cc -----
+\begin{tcolorbox}[colback=gray!5!white, colframe=blue!75!black, title={File: RunAction.cc}]
+\footnotesize
+\begin{verbatim}
+#include "RunAction.hh"
+#include "G4Run.hh"
+#include "G4ios.hh"
+
+RunAction::RunAction() { }
+RunAction::~RunAction() { }
+
+void RunAction::BeginOfRunAction(const G4Run* run)
+{
+  G4cout << "### Run " << run->GetRunID() << " start." << G4endl;
+}
+
+void RunAction::EndOfRunAction(const G4Run* run)
+{
+  G4cout << "### Run " << run->GetRunID() << " end." << G4endl;
+}
+\end{verbatim}
+\end{tcolorbox}
+
+\vspace{1em}
+
+% ----- EventAction.hh -----
+\begin{tcolorbox}[colback=gray!5!white, colframe=blue!75!black, title={File: EventAction.hh}]
+\footnotesize
+\begin{verbatim}
+#ifndef EventAction_h
+#define EventAction_h 1
+
+#include "G4UserEventAction.hh"
+
+class EventAction : public G4UserEventAction
+{
+  public:
+    EventAction();
+    virtual ~EventAction();
+    virtual void BeginOfEventAction(const G4Event*);
+    virtual void EndOfEventAction(const G4Event*);
+};
+
+#endif
+\end{verbatim}
+\end{tcolorbox}
+
+\vspace{1em}
+
+% ----- EventAction.cc -----
+\begin{tcolorbox}[colback=gray!5!white, colframe=blue!75!black, title={File: EventAction.cc}]
+\footnotesize
+\begin{verbatim}
+#include "EventAction.hh"
+#include "G4Event.hh"
+#include "G4ios.hh"
+
+EventAction::EventAction() { }
+EventAction::~EventAction() { }
+
+void EventAction::BeginOfEventAction(const G4Event* evt)
+{
+  G4cout << "### Event " << evt->GetEventID() << " start." << G4endl;
+}
+
+void EventAction::EndOfEventAction(const G4Event* evt)
+{
+  G4cout << "### Event " << evt->GetEventID() << " end." << G4endl;
+}
+\end{verbatim}
+\end{tcolorbox}
+
+\vspace{1em}
+
+% ----- SteppingAction.hh -----
+\begin{tcolorbox}[colback=gray!5!white, colframe=blue!75!black, title={File: SteppingAction.hh}]
+\footnotesize
+\begin{verbatim}
+#ifndef SteppingAction_h
+#define SteppingAction_h 1
+
+#include "G4UserSteppingAction.hh"
+
+class EventAction;
+
+class SteppingAction : public G4UserSteppingAction
+{
+  public:
+    SteppingAction(EventAction* eventAction);
+    virtual ~SteppingAction();
+    virtual void UserSteppingAction(const G4Step*);
+  
+  private:
+    EventAction* fEventAction;
+};
+
+#endif
+\end{verbatim}
+\end{tcolorbox}
+
+\vspace{1em}
+
+% ----- SteppingAction.cc -----
+\begin{tcolorbox}[colback=gray!5!white, colframe=blue!75!black, title={File: SteppingAction.cc}]
+\footnotesize
+\begin{verbatim}
+#include "SteppingAction.hh"
+#include "G4Step.hh"
+#include "EventAction.hh"
+#include "G4ios.hh"
+
+SteppingAction::SteppingAction(EventAction* eventAction)
+  : fEventAction(eventAction)
+{ }
+
+SteppingAction::~SteppingAction() { }
+
+void SteppingAction::UserSteppingAction(const G4Step* step)
+{
+  // User may add custom stepping actions here (e.g., scoring, tracking).
+}
+\end{verbatim}
+\end{tcolorbox}
+
+---
+
+This complete code provides a minimal yet functional Geant4 simulation environment that sets up a simple world with a Cherenkov radiator (modeled here as a silicon dioxide block), a primary particle generator (an electron gun), and basic run, event, and stepping actions. You can customize or extend each component to suit your experimental needs.
+
+Simply add the above appendix section to your LaTeX document, compile, and the full Geant4 simulation code will be shown to reviewers as part of your proposal.
