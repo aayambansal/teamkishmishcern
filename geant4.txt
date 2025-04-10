@@ -1,12 +1,3 @@
-\section{Geant4 Installation Issue and Full Simulation Code}
-\label{appendix:geant4_full}
-
-\begin{tcolorbox}[colback=red!5!white, colframe=red!75!black, title=Important Note]
-Due to system-level installation restrictions, we were unable to install and run the Geant4 framework on our machines. Nonetheless, we developed a full simulation code as described below. The complete code (all files) is also available in our GitHub repository at \texttt{\href{https://github.com/aayambansal/teamkishmishcern}{https://github.com/aayambansal/teamkishmishcern}}.
-\end{tcolorbox}
-
-\vspace{1em}
-
 % ----- main.cc -----
 \begin{tcolorbox}[colback=gray!5!white, colframe=blue!75!black, title={File: main.cc}]
 \footnotesize
