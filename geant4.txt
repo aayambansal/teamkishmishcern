@@ -1,7 +1,4 @@
 % ----- main.cc -----
-\begin{tcolorbox}[colback=gray!5!white, colframe=blue!75!black, title={File: main.cc}]
-\footnotesize
-\begin{verbatim}
 #include "G4RunManager.hh"
 #include "G4UImanager.hh"
 #include "G4VisExecutive.hh"
@@ -50,15 +47,8 @@ int main(int argc, char** argv)
   delete runManager;
   return 0;
 }
-\end{verbatim}
-\end{tcolorbox}
-
-\vspace{1em}
 
 % ----- DetectorConstruction.hh -----
-\begin{tcolorbox}[colback=gray!5!white, colframe=blue!75!black, title={File: DetectorConstruction.hh}]
-\footnotesize
-\begin{verbatim}
 #ifndef DetectorConstruction_h
 #define DetectorConstruction_h 1
 
@@ -73,15 +63,8 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 };
 
 #endif
-\end{verbatim}
-\end{tcolorbox}
-
-\vspace{1em}
 
 % ----- DetectorConstruction.cc -----
-\begin{tcolorbox}[colback=gray!5!white, colframe=blue!75!black, title={File: DetectorConstruction.cc}]
-\footnotesize
-\begin{verbatim}
 #include "DetectorConstruction.hh"
 #include "G4Material.hh"
 #include "G4NistManager.hh"
@@ -122,15 +105,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
   return physWorld;
 }
-\end{verbatim}
-\end{tcolorbox}
-
-\vspace{1em}
 
 % ----- ActionInitialization.hh -----
-\begin{tcolorbox}[colback=gray!5!white, colframe=blue!75!black, title={File: ActionInitialization.hh}]
-\footnotesize
-\begin{verbatim}
 #ifndef ActionInitialization_h
 #define ActionInitialization_h 1
 
@@ -146,15 +122,9 @@ class ActionInitialization : public G4VUserActionInitialization
 };
 
 #endif
-\end{verbatim}
-\end{tcolorbox}
-
-\vspace{1em}
 
 % ----- ActionInitialization.cc -----
-\begin{tcolorbox}[colback=gray!5!white, colframe=blue!75!black, title={File: ActionInitialization.cc}]
-\footnotesize
-\begin{verbatim}
+
 #include "ActionInitialization.hh"
 #include "PrimaryGeneratorAction.hh"
 #include "RunAction.hh"
@@ -177,15 +147,9 @@ void ActionInitialization::Build() const
   SetUserAction(eventAction);
   SetUserAction(new SteppingAction(eventAction));
 }
-\end{verbatim}
-\end{tcolorbox}
-
-\vspace{1em}
 
 % ----- PrimaryGeneratorAction.hh -----
-\begin{tcolorbox}[colback=gray!5!white, colframe=blue!75!black, title={File: PrimaryGeneratorAction.hh}]
-\footnotesize
-\begin{verbatim}
+
 #ifndef PrimaryGeneratorAction_h
 #define PrimaryGeneratorAction_h 1
 
@@ -204,15 +168,9 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 };
 
 #endif
-\end{verbatim}
-\end{tcolorbox}
-
-\vspace{1em}
 
 % ----- PrimaryGeneratorAction.cc -----
-\begin{tcolorbox}[colback=gray!5!white, colframe=blue!75!black, title={File: PrimaryGeneratorAction.cc}]
-\footnotesize
-\begin{verbatim}
+
 #include "PrimaryGeneratorAction.hh"
 #include "G4ParticleTable.hh"
 #include "G4ParticleDefinition.hh"
@@ -241,15 +199,10 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
   fParticleGun->GeneratePrimaryVertex(anEvent);
 }
-\end{verbatim}
-\end{tcolorbox}
 
-\vspace{1em}
 
 % ----- RunAction.hh -----
-\begin{tcolorbox}[colback=gray!5!white, colframe=blue!75!black, title={File: RunAction.hh}]
-\footnotesize
-\begin{verbatim}
+
 #ifndef RunAction_h
 #define RunAction_h 1
 
@@ -265,15 +218,10 @@ class RunAction : public G4UserRunAction
 };
 
 #endif
-\end{verbatim}
-\end{tcolorbox}
 
-\vspace{1em}
 
 % ----- RunAction.cc -----
-\begin{tcolorbox}[colback=gray!5!white, colframe=blue!75!black, title={File: RunAction.cc}]
-\footnotesize
-\begin{verbatim}
+
 #include "RunAction.hh"
 #include "G4Run.hh"
 #include "G4ios.hh"
@@ -290,15 +238,10 @@ void RunAction::EndOfRunAction(const G4Run* run)
 {
   G4cout << "### Run " << run->GetRunID() << " end." << G4endl;
 }
-\end{verbatim}
-\end{tcolorbox}
 
-\vspace{1em}
 
 % ----- EventAction.hh -----
-\begin{tcolorbox}[colback=gray!5!white, colframe=blue!75!black, title={File: EventAction.hh}]
-\footnotesize
-\begin{verbatim}
+
 #ifndef EventAction_h
 #define EventAction_h 1
 
@@ -314,15 +257,9 @@ class EventAction : public G4UserEventAction
 };
 
 #endif
-\end{verbatim}
-\end{tcolorbox}
-
-\vspace{1em}
 
 % ----- EventAction.cc -----
-\begin{tcolorbox}[colback=gray!5!white, colframe=blue!75!black, title={File: EventAction.cc}]
-\footnotesize
-\begin{verbatim}
+
 #include "EventAction.hh"
 #include "G4Event.hh"
 #include "G4ios.hh"
@@ -339,15 +276,9 @@ void EventAction::EndOfEventAction(const G4Event* evt)
 {
   G4cout << "### Event " << evt->GetEventID() << " end." << G4endl;
 }
-\end{verbatim}
-\end{tcolorbox}
-
-\vspace{1em}
 
 % ----- SteppingAction.hh -----
-\begin{tcolorbox}[colback=gray!5!white, colframe=blue!75!black, title={File: SteppingAction.hh}]
-\footnotesize
-\begin{verbatim}
+
 #ifndef SteppingAction_h
 #define SteppingAction_h 1
 
@@ -367,15 +298,9 @@ class SteppingAction : public G4UserSteppingAction
 };
 
 #endif
-\end{verbatim}
-\end{tcolorbox}
-
-\vspace{1em}
 
 % ----- SteppingAction.cc -----
-\begin{tcolorbox}[colback=gray!5!white, colframe=blue!75!black, title={File: SteppingAction.cc}]
-\footnotesize
-\begin{verbatim}
+
 #include "SteppingAction.hh"
 #include "G4Step.hh"
 #include "EventAction.hh"
@@ -391,6 +316,5 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
 {
   // User may add custom stepping actions here (e.g., scoring, tracking).
 }
-\end{verbatim}
-\end{tcolorbox}
+
 
