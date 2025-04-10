@@ -394,8 +394,3 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
 \end{verbatim}
 \end{tcolorbox}
 
----
-
-This complete code provides a minimal yet functional Geant4 simulation environment that sets up a simple world with a Cherenkov radiator (modeled here as a silicon dioxide block), a primary particle generator (an electron gun), and basic run, event, and stepping actions. You can customize or extend each component to suit your experimental needs.
-
-Simply add the above appendix section to your LaTeX document, compile, and the full Geant4 simulation code will be shown to reviewers as part of your proposal.
